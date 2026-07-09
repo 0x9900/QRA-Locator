@@ -443,7 +443,7 @@ async function map_init() {
       console.error("Location error:", error);
       Myloc = 'CM87VL';
     }
-    zoomLevel = 3;
+    zoomLevel = 5;
   }
 
   var geo = loc2latlon(Myloc);
