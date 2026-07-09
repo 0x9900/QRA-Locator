@@ -1,0 +1,244 @@
+/*
+ * grid.css
+ * Copyright (C) 2026 fred <github-fred@hidzz.com>
+ *
+ * Distributed under terms of the BSD 3-Clause license.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;600&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Menlo", "JetBrains Mono", "Consolas", "SF Mono", "Cascadia Code", "Fira Code", "Liberation Mono", "DejaVu Sans Mono", monospace;
+}
+
+header {
+  position: relative;
+}
+
+header h1 {
+  font-size: 42px;
+  font-family: "Saira Condensed", sans-serif;
+  background: linear-gradient(to bottom, #113, #116);
+  color: #f80;
+  margin: 0;
+  text-align: center;
+  padding: 3px;
+  padding-right: 24px; /* Space for icon */
+}
+
+header .info {
+  font-size: 24px;
+  position: absolute;
+  right: 20px;
+  top: 25px;
+  transform: translateY(-50%);
+  color: #f80;
+}
+
+header .info a {
+  color: #f80;
+  text-decoration: none;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#res {
+  padding: 10px 15px;
+  background: #eef;
+  border-bottom: 2px solid #116;
+  flex-shrink: 0;
+}
+
+/* Two-column grid layout */
+.info-grid {
+  display: grid;
+  grid-template-columns: 30% 1fr;
+  align-items: stretch;
+  gap: 20px;
+  align-items: start;
+}
+
+.info-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  place-items: center;
+}
+
+.info-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+
+.info-label {
+  color: #333;
+  min-width: 120px;
+}
+
+.info-value {
+  color: #0066cc;
+}
+
+#myform {
+  margin: 0;
+  background: none;
+}
+
+.search-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-input-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+#myform input[type="text"] {
+  padding: 5px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100px;
+}
+
+#myform input[type="button"] {
+  padding: 5px 15px;
+  background: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#myform input[type="button"]:hover {
+  background: #0052a3;
+}
+
+#mapid {
+  flex: 1;
+  height: 85vh;
+}
+
+.select-box-label {
+  font-family: "Saira Condensed", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+  color: red;
+}
+
+.box-label {
+  font-family: "Saira Condensed", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  color: #006;
+}
+
+.copyright {
+  color: #333;
+  background: #eee;
+  padding: 30px;
+  border: 5px solid #f80;
+  border-radius: 12px;
+  font-family: Verdana, sans-serif;
+}
+
+/* Responsive design - single column on small screens */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 36px;
+    margin: 0;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .info-right {
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+  }
+
+  .info-label {
+    min-width: 80px;
+  }
+
+  #myform input[type="text"] {
+    width: 80px;
+    font-size: 13px;
+  }
+
+  #myform input[type="button"] {
+    font-size: 13px;
+    padding: 4px 12px;
+  }
+
+  .info-value {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 18px;
+    margin: 0;
+    padding: 0;
+  }
+
+  header .info {
+    font-size: 12px;
+    right: 3px;
+    top: 13px;
+  }
+
+  #res {
+    padding: 8px;
+  }
+
+  .info-label {
+    min-width: 60px;
+    font-size: 13px;
+  }
+
+  .info-row {
+    gap: 3px 5px;
+  }
+
+  .search-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .search-input-group {
+    justify-content: center;
+  }
+
+  #myform input[type="text"] {
+    width: 70px;
+    font-size: 12px;
+  }
+}

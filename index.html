@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Find your locator by exploring the map or by searching an address</title>
+    <meta name="description" content="Maidenhead Locator System - Find your locator by exploring the map or by searching an address." />
+    <meta name="description" content="Up to 10-character precise Maidenhead WWL grid." />
+    <meta name="keywords" content="qth, qra, locator, maidenhead, wwl, grid, map, google, maps, grid square, lattitude, longitude, amateur radio" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Esri Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/esri-leaflet/3.1.0/esri-leaflet.js" integrity="sha512-YRqndE31+urvIq5hWQw0YPM7rTGU83GLqra65HbpQudbzGF5g7Pte1WsYF2K/+2ppmY8hKainD+jKmj3TKn8IA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Esri Leaflet Geocoder CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/esri-leaflet-geocoder/3.1.7/esri-leaflet-geocoder.css" integrity="sha512-Xl6u18E/1V1dvC2D+Desg5U+j+ixg52ZCJtk9jXOZaMb6cVjXp2jYz1N/1cxzkOjmdMc5zNq1DpHo8yh433IkQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Esri Leaflet Geocoder JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/esri-leaflet-geocoder/3.1.7/esri-leaflet-geocoder.js" integrity="sha512-Wzn40LiRa1hOpYwP6D7SkAC4F3mkP8HkJYFTrn4DnDJ2JGsajuTzXy1/SHLHa7DnNsopNKyv0yrLRPlvICjNrA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="stylesheet" href="/grid.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  </head>
+  <body>
+
+    <div class="container">
+      <header>
+        <div class="info">
+          <i class="fa-regular fa-circle-question"></i>
+        </div>
+        <h1>QRA Locator</h1>
+      </header>
+      <div id="res">
+
+        <!-- Two-column grid -->
+        <div class="info-grid">
+          <!-- Left column: Locator and coordinates -->
+          <div class="info-right">
+            <div id="myform">
+              <form name="myform" action="" method="post" onsubmit="return false;">
+                <div class="search-container">
+                  <div class="search-input-group">
+                    <span>Locator:</span>
+                    <input type="text" id="newloc" size="6" maxlength="6" value="" />
+                    <input type="button" value="Search" onclick="locate()" />
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Right column: Search form -->
+          <div class="info-left">
+            <div class="info-row">
+              <span class="info-label">Maidenhead Locator:</span>
+              <span id="myloc" class="info-value"></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Latitude:</span>
+              <span id="lat" class="info-value"></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Longitude:</span>
+              <span id="lon" class="info-value"></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div id="mapid"></div>
+    </div>
+
+    <script src="grid.js"></script>
+  </body>
+</html>
