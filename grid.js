@@ -1,37 +1,16 @@
 // ===================== Maidenhead locator <-> lat/lon =====================
 
-function latlon2loc(lat, lon) { // lat/lon -> Maidenhead locator
-  lat += 90;  // lat origin of Maidenhead is 90S
-  lon += 180; // lon origin of Maidenhead is 180W
-  var units = 1036800; // 18 fields * 10 squares * 24 subsquares * 10 extended square
+const FIELD_CHARS = "ABCDEFGHIJKLMNOPQR";
+const SUBSQUARE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWX";
 
-  // extended subsquare
-  var latUnits = Math.floor(lat * units / 24);
-  var lonUnits = Math.floor(lon * units / 24);
-  var locator = String.fromCharCode(65 + (lonUnits % 24), 65 + (latUnits % 24));
-
-  // extended square
-  latUnits = Math.floor(latUnits / 180.0);
-  lonUnits = Math.floor(lonUnits / 360.0);
-  locator = String.fromCharCode(48 + (lonUnits % 10), 48 + (latUnits % 10)) + locator;
-
-  // subsquare
-  latUnits = Math.floor(latUnits / 10);
-  lonUnits = Math.floor(lonUnits / 10);
-  locator = String.fromCharCode(65 + (lonUnits % 24), 65 + (latUnits % 24)) + locator;
-
-  // square
-  latUnits = Math.floor(latUnits / 24);
-  lonUnits = Math.floor(lonUnits / 24);
-  locator = String.fromCharCode(48 + (lonUnits % 10), 48 + (latUnits % 10)) + locator;
-
-  // field
-  latUnits = Math.floor(latUnits / 10);
-  lonUnits = Math.floor(lonUnits / 10);
-  locator = String.fromCharCode(65 + lonUnits, 65 + latUnits) + locator;
-
-  return locator;
-}
+// Label font size by zoom level.
+const LABEL_SIZES_BY_ZOOM = {
+  1: 2, 2: 3, 3: 5, 4: 10, 5: 14,   // precision 1 (field)
+  6: 3, 7: 3, 8: 5, 9: 10,          // precision 2 (square)
+  10: 1, 11: 3, 12: 5               // precision 3 (subsquare)
+};
+const LABEL_SIZE_DEFAULT = 1;
+const LABEL_SIZE_FALLBACK = 9; // zoom >= 13 at precision 3
 
 function loc2latlon(locator) { // Maidenhead locator -> {lat, lon}
   if (locator.length === 6) {
@@ -60,8 +39,53 @@ function loc2latlon(locator) { // Maidenhead locator -> {lat, lon}
   return { lat: lat, lon: lon };
 }
 
-// ===================== Math helpers =====================
+function getLocator(lon, lat, precision) {
+  var x = lon;
+  var y = lat;
 
+  // Handle world wrap-around safely
+  while (x < -180) { x += 360; }
+  while (x > 180) { x -= 360; }
+
+  x = x + 180;
+  y = y + 90;
+
+  // --- Level 1: Field ---
+  var fieldLngIdx = Math.floor(x / 20);
+  var fieldLatIdx = Math.floor(y / 10);
+
+  // Guard against array overflow at absolute map boundaries
+  if(fieldLngIdx > 17) fieldLngIdx = 17;
+  if(fieldLatIdx > 17) fieldLatIdx = 17;
+
+  var locator = FIELD_CHARS[fieldLngIdx] + FIELD_CHARS[fieldLatIdx];
+
+  // --- Level 2: Square ---
+  var rlon, rlat;
+  if (precision > 1) {
+    rlon = x - (fieldLngIdx * 20);
+    rlat = y - (fieldLatIdx * 10);
+    locator += Math.floor(rlon / 2) + "" + Math.floor(rlat / 1);
+  }
+
+  // --- Level 3: Subsquare ---
+  if (precision > 2) {
+    var remSubLng = rlon - (Math.floor(rlon / 2) * 2);
+    var remSubLat = rlat - (Math.floor(rlat / 1) * 1);
+
+    var subLngIdx = Math.floor(remSubLng / (2 / 24));
+    var subLatIdx = Math.floor(remSubLat / (1 / 24));
+
+    if(subLngIdx > 23) subLngIdx = 23;
+    if(subLatIdx > 23) subLatIdx = 23;
+
+    locator += SUBSQUARE_CHARS[subLngIdx] + SUBSQUARE_CHARS[subLatIdx];
+  }
+
+  return locator;
+}
+
+// ===================== Math helpers =====================
 function toRadian(degree) {
   return degree * Math.PI / 180;
 }
@@ -72,9 +96,6 @@ function round(value, precision) {
 }
 
 // ===================== Locator search box =====================
-
-// Shared by both the "search" input (reloads the page) and any
-// programmatic call (e.g. clicking a locator link) that shouldn't reload.
 function goToLocator(rawValue, shouldReload) {
   var newloc = rawValue.toUpperCase();
   var isSixChar = /^[A-R]{2}[0-9]{2}[A-X]{2}$/.test(newloc);
@@ -212,53 +233,11 @@ function addGridCell(swLat, swLon, neLat, neLon, labelLon, labelLat, precision, 
   labelLayer.addLayer(getLabel(labelLon, labelLat, precision, zoom));
 }
 
-function getLocator(lon, lat, precision) {
-  var locator = "";
-  var x = lon;
-  var y = lat;
-
-  while (x < -180) { x += 360; }
-  while (x > 180) { x -= 360; }
-
-  x = x + 180;
-  y = y + 90;
-
-  locator += d1[Math.floor(x / 20)] + d1[Math.floor(y / 10)];
-
-  var rlon, rlat;
-  if (precision > 1) {
-    rlon = x % 20;
-    rlat = y % 10;
-    locator += Math.floor(rlon / 2) + "" + Math.floor(rlat / 1);
-  }
-
-  if (precision > 2) {
-    rlon = rlon % 2;
-    rlat = rlat % 1;
-    locator += d2[Math.floor(rlon / (2 / 24))] + "" + d2[Math.floor(rlat / (1 / 24))];
-  }
-
-  return locator;
-}
-
 // Helper function to get only the first 6 characters of a locator
 function getShortLocator(locator) {
   if (!locator) return "";
   return locator.substring(0, 6);
 }
-
-// Label font size by zoom level. Zoom ranges never overlap between
-// precisions (1-5 = field, 6-9 = square, 10+ = subsquare), so a single
-// flat lookup keyed by zoom replaces the old three-way switch/if-chain.
-// LABEL_SIZE_FALLBACK covers zoom >= 13, which the original switch handled
-// via a "default" case that only existed inside the precision === 3 branch.
-var LABEL_SIZES_BY_ZOOM = {
-  1: 2, 2: 3, 3: 5, 4: 10, 5: 14,   // precision 1 (field)
-  6: 3, 7: 3, 8: 5, 9: 10,          // precision 2 (square)
-  10: 1, 11: 3, 12: 5               // precision 3 (subsquare)
-};
-var LABEL_SIZE_DEFAULT = 1;
-var LABEL_SIZE_FALLBACK = 9; // zoom >= 13 at precision 3
 
 function getLabelSize(precision, zoom) {
   if (zoom in LABEL_SIZES_BY_ZOOM) {
@@ -327,26 +306,30 @@ function drawSquareGrid(bounds, zoom) {
   });
 }
 
-// Subsquare-level grid: same 2deg x 1deg cells as drawSquareGrid, each
-// further split into a 24x24 grid of subsquares.
 function drawSubsquareGrid(bounds, zoom) {
   var lonStep = 2, latStep = 1;
   var b = computeGridBounds(bounds, lonStep, latStep);
   var subLonStep = lonStep / 24;
   var subLatStep = latStep / 24;
 
+  // Only draw labels if we're zoomed in deep enough to care
+  var showLabels = zoom >= 12;
+
   forRange(b.left, b.right, lonStep, function (lon) {
     forRange(b.bottom, b.top, latStep, function (lat) {
-      // Integer-indexed rather than accumulating slon/slat by += so
-      // there's no floating point drift across 24 iterations.
       for (var i = 0; i < 24; i++) {
         var slon = lon + i * subLonStep;
         for (var j = 0; j < 24; j++) {
           var slat = lat + j * subLatStep;
-          addGridCell(
-            slat, slon, slat + subLatStep, slon + subLonStep,
-            slon + (0.8 / 24), slat + (1 / 48), 3, zoom
+
+          gridLayer.addLayer(L.rectangle(
+            [[slat, slon], [slat + subLatStep, slon + subLonStep]],
+            gridStyle)
           );
+
+          if (showLabels) {
+            labelLayer.addLayer(getLabel(slon + (0.8 / 24), slat + (1 / 48), 3, zoom));
+          }
         }
       }
     });
@@ -393,7 +376,7 @@ function updateInfo(lat, lon) {
   if (lon > 180) lon -= 360;
   if (lon < -180) lon += 360;
 
-  var fullLocator = latlon2loc(lat, lon);
+  var fullLocator = getMaidenheadLocator(lat, lon);
   var shortLocator = getShortLocator(fullLocator);
 
   var latDisplay = formatCoordinate(lat);
@@ -419,13 +402,48 @@ async function getCurrentLocation() {
   });
 }
 
+// Maidenhead Locator Generator
+function getMaidenheadLocator(lat, lon, precision = 3) {
+    let lngAdjusted = lon + 180;
+    let latAdjusted = lat + 90;
+
+    // Handle edge case wrap-arounds
+    while (lngAdjusted < 0) { lngAdjusted += 360; }
+    while (lngAdjusted > 360) { lngAdjusted -= 360; }
+
+    // --- LEVEL 1: Fields (20° Longitude x 10° Latitude) ---
+    let fieldLngIdx = Math.floor(lngAdjusted / 20);
+    let fieldLatIdx = Math.floor(latAdjusted / 10);
+    let locator = FIELD_CHARS[fieldLngIdx] + FIELD_CHARS[fieldLatIdx];
+
+    if (precision > 1) {
+        // --- LEVEL 2: Squares (2° Longitude x 1° Latitude) ---
+        let remLng = lngAdjusted - (fieldLngIdx * 20);
+        let remLat = latAdjusted - (fieldLatIdx * 10);
+
+        let squareLngIdx = Math.floor(remLng / 2);
+        let squareLatIdx = Math.floor(remLat / 1);
+        locator += squareLngIdx + "" + squareLatIdx;
+
+        if (precision > 2) {
+            // --- LEVEL 3: Subsquares (5' Longitude x 2.5' Latitude) ---
+            let remSubLng = remLng - (squareLngIdx * 2);
+            let remSubLat = remLat - (squareLatIdx * 1);
+
+            let subLngIdx = Math.floor(remSubLng / (2 / 24));
+            let subLatIdx = Math.floor(remSubLat / (1 / 24));
+
+            locator += SUBSQUARE_CHARS[subLngIdx] + SUBSQUARE_CHARS[subLatIdx];
+        }
+    }
+
+    return locator;
+}
 
 // ===================== Map init =====================
 var mymap;
 var gridLayer;
 var labelLayer;
-var d1 = "ABCDEFGHIJKLMNOPQR".split("");
-var d2 = "ABCDEFGHIJKLMNOPQRSTUVWX".split("");
 
 async function map_init() {
   var Myloc = sessionStorage.getItem('Myloc');
@@ -435,7 +453,7 @@ async function map_init() {
     try {
       const coords = await getCurrentLocation();
       if (coords) {
-        Myloc = latlon2loc(coords.lat, coords.lon);
+        Myloc = getMaidenheadLocator(coords.lat, coords.lon);
       } else {
         Myloc = 'CM87VL';
       }
@@ -483,7 +501,7 @@ async function map_init() {
   mymap.on('click', function (e) {
     var lat = e.latlng.lat;
     var lon = e.latlng.lng;
-    var fullLocator = latlon2loc(lat, lon);
+    var fullLocator = getMaidenheadLocator(lat, lon);
     var shortLocator = getShortLocator(fullLocator);
     var str = formatCoordinate(lat) + ", " + formatCoordinate(lon);
     navigator.clipboard.writeText(str);
