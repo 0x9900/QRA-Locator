@@ -150,10 +150,19 @@ function showCopyright() {
     document.body.appendChild(cr);
   }
 
-  cr.innerHTML = '<p>QRA locator &copy; 2026 Fred <a href="https://qrz.com/db/W6BSD/" target="_blank">W6BSD</a><br> ' +
-    'inspired by a previous work from <a href="https://cluster.f5len.org/index.php" target="_blank">F4LEN</a><br></p>' +
-    '<p>Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a><br>' +
-    'Imagery &copy; <a href="https://www.mapbox.com/" target="_blank">Mapbox</a></p>';
+  cr.innerHTML = `
+    <p>A Maidenhead locator is a standardized way to represent a geographic location
+    using six characters: two letters, two numbers, two letters, and two numbers
+    (e.g., "JN65vv"). It\'s used in amateur radio to quickly and accurately identify
+    locations for global communication</p>
+    <hr>
+    <p>QRA locator &copy; 2026 Fred <a href="https://qrz.com/db/W6BSD/" target="_blank">W6BSD</a>
+    inspired by a previous work from <a href="https://cluster.f5len.org/index.php"
+    target="_blank">F4LEN</a></p>
+    <p>Map data &copy; <a href="https://www.openstreetmap.org/copyright"
+    target="_blank">OpenStreetMap contributors</a><br>
+    Imagery &copy; <a href="https://www.mapbox.com/" target="_blank">Mapbox</a></p>
+    `
 
   requestAnimationFrame(function () {
     cr.style.opacity = '1';

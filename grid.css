@@ -167,12 +167,17 @@ header .about:hover::before {
 }
 
 .copyright {
-  color: #eee;
+  color: #aaa;
   background: #114;
   padding: 30px;
   border: 5px solid #f80;
   border-radius: 12px;
   font-family: Verdana, sans-serif;
+}
+
+.copyright hr {
+  border: 1px solid #666; 
+  border-bottom: none;
 }
 
 .copyright a {
