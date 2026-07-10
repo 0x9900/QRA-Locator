@@ -144,15 +144,16 @@ function showCopyright() {
       'text-align: center',
       'z-index: 10000',
       'opacity: 0',
-      'transition: opacity 0.2s ease'
+      'transition: opacity 0.2s ease',
+      'font-size: .8em'
     ].join(';');
     document.body.appendChild(cr);
   }
 
-  cr.innerHTML = '<p>QRA locator &copy; 2026 Fred <a href="https://qrz.com/db/W6BSD/">W6BSD</a><br> ' +
-    'inspired by a previous work from F4LEN<br></p>' +
-    '<p>Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a><br>' +
-    'Imagery &copy; <a href="https://www.mapbox.com/">Mapbox</a></p>';
+  cr.innerHTML = '<p>QRA locator &copy; 2026 Fred <a href="https://qrz.com/db/W6BSD/" target="_blank">W6BSD</a><br> ' +
+    'inspired by a previous work from <a href="https://cluster.f5len.org/index.php" target="_blank">F4LEN</a><br></p>' +
+    '<p>Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a><br>' +
+    'Imagery &copy; <a href="https://www.mapbox.com/" target="_blank">Mapbox</a></p>';
 
   requestAnimationFrame(function () {
     cr.style.opacity = '1';
@@ -356,15 +357,14 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-  var infoModal = document.querySelector('.info');
+  var infoModal = document.getElementById('about');
   if (infoModal) {
     infoModal.addEventListener('click', function(e) {
       showCopyright(e);
-    e.preventDefault();
+      e.preventDefault();
     });
   }
 });
-
 
 // Helper function to format numbers with 5 decimal places, padded if necessary
 function formatCoordinate(value) {

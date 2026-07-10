@@ -31,7 +31,7 @@ header h1 {
   padding-right: 24px; /* Space for icon */
 }
 
-header .info {
+header .about {
   font-size: 24px;
   position: absolute;
   right: 20px;
@@ -40,9 +40,19 @@ header .info {
   color: #f80;
 }
 
-header .info a {
+header .about::before {
+  display: inline-block;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  font: var(--fa-font-solid);
+  content: "\f06a"; 
   color: #f80;
-  text-decoration: none;
+  cursor: pointer;
+}
+
+header .about:hover::before {
+    content: "\f059";
+    mouse:
 }
 
 .container {
@@ -157,12 +167,22 @@ header .info a {
 }
 
 .copyright {
-  color: #333;
-  background: #eee;
+  color: #eee;
+  background: #114;
   padding: 30px;
   border: 5px solid #f80;
   border-radius: 12px;
   font-family: Verdana, sans-serif;
+}
+
+.copyright a {
+    color: #3a3;
+    text-decoration: none;
+}
+
+.copyright a:hover {
+    color: #3e3;
+    text-decoration: underline;
 }
 
 /* Responsive design - single column on small screens */
