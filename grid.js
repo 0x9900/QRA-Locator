@@ -158,8 +158,8 @@ function showCopyright() {
 
   cr.innerHTML = `
     <p>A Maidenhead locator is a standardized way to represent a geographic location
-    using six characters: two letters, two numbers, two letters, and two numbers
-    (e.g., "JN18pn"). It\'s used in amateur radio to quickly and accurately identify
+    using six characters: two letters, two numbers and two letters,
+    (e.g., "JN18PN"). It\'s used in amateur radio to quickly and accurately identify
     locations for global communication</p>
     <hr>
     <p>QRA locator &copy; 2026 Fred <a href="https://qrz.com/db/W6BSD/" target="_blank">W6BSD</a>
