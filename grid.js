@@ -323,7 +323,7 @@ function drawSubsquareGrid(bounds, zoom) {
   var subLatStep = latStep / 24;
 
   // Only draw labels if we're zoomed in deep enough to care
-  var showLabels = zoom >= 12;
+  var showLabels = zoom >= 11;
 
   forRange(b.left, b.right, lonStep, function (lon) {
     forRange(b.bottom, b.top, latStep, function (lat) {
