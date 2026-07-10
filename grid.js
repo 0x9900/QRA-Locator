@@ -5,12 +5,22 @@ const SUBSQUARE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWX";
 
 // Label font size by zoom level.
 const LABEL_SIZES_BY_ZOOM = {
-  1: 2, 2: 3, 3: 5, 4: 10, 5: 14,   // precision 1 (field)
-  6: 3, 7: 3, 8: 5, 9: 10,          // precision 2 (square)
-  10: 1, 11: 3, 12: 5               // precision 3 (subsquare)
+  1: 2,
+  2: 3,
+  3: 5,
+  4: 5,
+  5: 8,
+  6: 8,
+  7: 3,
+  8: 5,
+  9: 10,
+  10: 14,
+  11: 3,
+  12: 5,
+  13: 8
 };
-const LABEL_SIZE_DEFAULT = 1;
-const LABEL_SIZE_FALLBACK = 9; // zoom >= 13 at precision 3
+const LABEL_SIZE_DEFAULT = 3;
+const LABEL_SIZE_FALLBACK = 12; // zoom >= 13 at precision 3
 
 function loc2latlon(locator) { // Maidenhead locator -> {lat, lon}
   if (locator.length === 6) {
@@ -103,7 +113,7 @@ function goToLocator(rawValue, shouldReload) {
 
   if (isSixChar) {
     sessionStorage.setItem('Myloc', newloc);
-    sessionStorage.setItem('zoomLevel', 12);
+    sessionStorage.setItem('zoomLevel', 13);
   } else if (isFourChar) {
     sessionStorage.setItem('Myloc', newloc + 'LL');
     sessionStorage.setItem('zoomLevel', 9);
@@ -124,10 +134,6 @@ function locate() {
   } else {
     alert("Please enter a locator");
   }
-}
-
-function directe(value) {
-  goToLocator(value, false);
 }
 
 function showCopyright() {
@@ -347,9 +353,10 @@ function drawSubsquareGrid(bounds, zoom) {
 }
 
 function drawGrid(bounds, zoom) {
-  if (zoom < 6) {
+  console.log(`Zoom Level: ${zoom}`);
+  if (zoom < 7) {
     drawFieldGrid(bounds, zoom);
-  } else if (zoom < 10) {
+  } else if (zoom < 11) {
     drawSquareGrid(bounds, zoom);
   } else {
     drawSubsquareGrid(bounds, zoom);
@@ -455,6 +462,7 @@ var gridLayer;
 var labelLayer;
 
 async function map_init() {
+  var allowedZoomLevels = [3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14];
   var Myloc = sessionStorage.getItem('Myloc');
   var zoomLevel = sessionStorage.getItem('zoomLevel');
 
@@ -478,7 +486,7 @@ async function map_init() {
   var mylon = geo.lon;
   updateInfo(mylat, mylon);
 
-  mymap = L.map('mapid').setView([mylat, mylon], zoomLevel);
+  mymap = L.map('mapid', {minZoom: 3, maxZoom: 14}).setView([mylat, mylon], zoomLevel);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -491,12 +499,15 @@ async function map_init() {
   L.control.scale().addTo(mymap);
 
   var results = L.layerGroup().addTo(mymap);
+  // Track the previous zoom level to determine direction
+  var previousZoom = mymap.getZoom();
 
   // Grids
   gridLayer = new L.LayerGroup({ zIndex: 500 }).addTo(mymap);
   labelLayer = new L.LayerGroup().addTo(mymap);
   drawGrid(mymap.getBounds(), mymap.getZoom());
 
+  // Map events
   mymap.on('mousemove', function(e) {
     var lat = e.latlng.lat;
     var lon = e.latlng.lng;
@@ -505,6 +516,25 @@ async function map_init() {
 
   mymap.on("moveend", function () {
     refreshMap();
+  });
+
+  mymap.on('zoomend', () => {
+    const currentZoom = Math.round(mymap.getZoom());
+    if (allowedZoomLevels.includes(currentZoom)) {
+      previousZoom = currentZoom;
+      return;
+    }
+    const direction = currentZoom > previousZoom ? 1 : -1;
+    const nextAllowed = allowedZoomLevels
+      .filter(zoom => direction === 1 ? zoom > currentZoom : zoom < currentZoom)
+      .sort((a, b) => direction === 1 ? a - b : b - a)[0];
+
+    if (nextAllowed !== undefined) {
+      mymap.setZoom(nextAllowed);
+      previousZoom = nextAllowed;
+    } else {
+      mymap.setZoom(previousZoom);
+    }
   });
 
   mymap.on('click', function (e) {
