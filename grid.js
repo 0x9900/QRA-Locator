@@ -499,12 +499,15 @@ async function map_init() {
   L.control.scale().addTo(mymap);
 
   var results = L.layerGroup().addTo(mymap);
+  // Track the previous zoom level to determine direction
+  var previousZoom = mymap.getZoom();
 
   // Grids
   gridLayer = new L.LayerGroup({ zIndex: 500 }).addTo(mymap);
   labelLayer = new L.LayerGroup().addTo(mymap);
   drawGrid(mymap.getBounds(), mymap.getZoom());
 
+  // Map events
   mymap.on('mousemove', function(e) {
     var lat = e.latlng.lat;
     var lon = e.latlng.lng;
@@ -515,37 +518,23 @@ async function map_init() {
     refreshMap();
   });
 
-
-  // Track the previous zoom level to determine direction
-  var previousZoom = mymap.getZoom();
-
-  mymap.on('zoom', function() {
-    var currentZoom = mymap.getZoom();
-
-    // Check if we're on a disallowed zoom level
-    if (!allowedZoomLevels.includes(Math.round(currentZoom))) {
-      // Determine zoom direction
-      var direction = currentZoom > previousZoom ? 1 : -1; // 1 = zooming in, -1 = zooming out
-
-      // Find the next allowed zoom level in that direction
-      var nextAllowed = allowedZoomLevels.reduce(function(prev, curr) {
-        // Find the closest allowed level in the zoom direction
-        if (direction === 1 && curr > Math.round(currentZoom)) {
-          return prev === null || curr < prev ? curr : prev;
-        } else if (direction === -1 && curr < Math.round(currentZoom)) {
-          return prev === null || curr > prev ? curr : prev;
-        }
-        return prev;
-      }, null);
-
-      // If we found a valid next level, snap to it
-      if (nextAllowed !== null) {
-        mymap.setZoom(nextAllowed);
-      }
+  mymap.on('zoomend', () => {
+    const currentZoom = Math.round(mymap.getZoom());
+    if (allowedZoomLevels.includes(currentZoom)) {
+      previousZoom = currentZoom;
+      return;
     }
+    const direction = currentZoom > previousZoom ? 1 : -1;
+    const nextAllowed = allowedZoomLevels
+      .filter(zoom => direction === 1 ? zoom > currentZoom : zoom < currentZoom)
+      .sort((a, b) => direction === 1 ? a - b : b - a)[0];
 
-    // Update previous zoom for next event
-    previousZoom = mymap.getZoom();
+    if (nextAllowed !== undefined) {
+      mymap.setZoom(nextAllowed);
+      previousZoom = nextAllowed;
+    } else {
+      mymap.setZoom(previousZoom);
+    }
   });
 
   mymap.on('click', function (e) {
