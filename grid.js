@@ -112,11 +112,11 @@ function goToLocator(rawValue, shouldReload) {
   var isFourChar = /^[A-R]{2}[0-9]{2}$/.test(newloc);
 
   if (isSixChar) {
-    sessionStorage.setItem('Myloc', newloc);
-    sessionStorage.setItem('zoomLevel', 13);
+    localStorage.setItem('Myloc', newloc);
+    localStorage.setItem('zoomLevel', 13);
   } else if (isFourChar) {
-    sessionStorage.setItem('Myloc', newloc + 'LL');
-    sessionStorage.setItem('zoomLevel', 9);
+    localStorage.setItem('Myloc', newloc + 'LL');
+    localStorage.setItem('zoomLevel', 9);
   } else {
     alert("Locator must be 4 or 6 characters: " + rawValue);
     return;
@@ -269,7 +269,7 @@ function getLabel(lon, lat, precision, zoom) {
   var shortLocator = getShortLocator(fullLocator);
 
   // Get the stored locator safely
-  var storedLocator = sessionStorage.getItem('Myloc') || "";
+  var storedLocator = localStorage.getItem('Myloc') || "";
   var isMyLoc = shortLocator === getShortLocator(storedLocator);
 
   var myIcon = L.divIcon({
@@ -403,33 +403,6 @@ function updateInfo(lat, lon) {
   document.getElementById('myloc').innerHTML = shortLocator;
 }
 
-async function getCurrentLocation() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      resolve(null);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude
-        });
-      },
-      (error) => {
-        reject(error);
-      },
-      {
-        enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 300000
-      }
-    );
-  });
-}
-
-
 // Maidenhead Locator Generator
 function getMaidenheadLocator(lat, lon, precision = 3) {
     let lngAdjusted = lon + 180;
@@ -475,15 +448,8 @@ var labelLayer;
 
 async function map_init() {
   var allowedZoomLevels = [3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14];
-  var Myloc = sessionStorage.getItem('Myloc');
-  var zoomLevel = sessionStorage.getItem('zoomLevel');
-  var hasStoredLoc = !(Myloc == null || Myloc === "");
-
-  if (!hasStoredLoc) {
-    Myloc = "CM87VL";
-    zoomLevel = 4;
-  }
-
+  var Myloc = localStorage.getItem('Myloc') || 'HN05LL';
+  var zoomLevel = localStorage.getItem('zoomLevel') || 3;
   var geo = loc2latlon(Myloc);
   var mylat = geo.lat;
   var mylon = geo.lon;
@@ -510,30 +476,6 @@ async function map_init() {
   gridLayer = new L.LayerGroup({ zIndex: 500 }).addTo(mymap);
   labelLayer = new L.LayerGroup().addTo(mymap);
   drawGrid(mymap.getBounds(), mymap.getZoom());
-
-  if (!hasStoredLoc) {
-    getCurrentLocation()
-      .then((coords) => {
-        if (!coords) return;
-        Myloc = getMaidenheadLocator(coords.lat, coords.lon);
-        zoomLevel = 5;
-        geo = loc2latlon(Myloc);
-        mylat = geo.lat;
-        mylon = geo.lon;
-        updateInfo(mylat, mylon);
-        mymap.setView([mylat, mylon], zoomLevel);
-        drawGrid(mymap.getBounds(), mymap.getZoom());
-      })
-      .catch((error) => {
-        if (error.code === error.TIMEOUT) {
-          console.info("Geolocation timed out, staying on default view.");
-        } else if (error.code === error.PERMISSION_DENIED) {
-          console.info("Geolocation permission denied.");
-        } else {
-          console.error("Location error:", error);
-        }
-      });
-  }
 
   // Map events
   mymap.on('mousemove', function(e) {
@@ -575,6 +517,5 @@ async function map_init() {
     showToast('GPS coordinates "' + str + '" copied to the clipboard');
   });
 }
-
 
 map_init();
