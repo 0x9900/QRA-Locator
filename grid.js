@@ -406,17 +406,29 @@ function updateInfo(lat, lon) {
 async function getCurrentLocation() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error("Geolocation not supported"));
+      resolve(null);
       return;
     }
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        resolve({ lat: position.coords.latitude, lon: position.coords.longitude });
+        resolve({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        });
       },
-      (error) => reject(error)
+      (error) => {
+        reject(error);
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000
+      }
     );
   });
 }
+
 
 // Maidenhead Locator Generator
 function getMaidenheadLocator(lat, lon, precision = 3) {
@@ -465,20 +477,11 @@ async function map_init() {
   var allowedZoomLevels = [3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14];
   var Myloc = sessionStorage.getItem('Myloc');
   var zoomLevel = sessionStorage.getItem('zoomLevel');
+  var hasStoredLoc = !(Myloc == null || Myloc === "");
 
-  if (Myloc == null || Myloc === "") {
-    try {
-      const coords = await getCurrentLocation();
-      if (coords) {
-        Myloc = getMaidenheadLocator(coords.lat, coords.lon);
-      } else {
-        Myloc = 'CM87VL';
-      }
-    } catch (error) {
-      console.error("Location error:", error);
-      Myloc = 'CM87VL';
-    }
-    zoomLevel = 5;
+  if (!hasStoredLoc) {
+    Myloc = "CM87VL";
+    zoomLevel = 4;
   }
 
   var geo = loc2latlon(Myloc);
@@ -499,6 +502,7 @@ async function map_init() {
   L.control.scale().addTo(mymap);
 
   var results = L.layerGroup().addTo(mymap);
+
   // Track the previous zoom level to determine direction
   var previousZoom = mymap.getZoom();
 
@@ -506,6 +510,30 @@ async function map_init() {
   gridLayer = new L.LayerGroup({ zIndex: 500 }).addTo(mymap);
   labelLayer = new L.LayerGroup().addTo(mymap);
   drawGrid(mymap.getBounds(), mymap.getZoom());
+
+  if (!hasStoredLoc) {
+    getCurrentLocation()
+      .then((coords) => {
+        if (!coords) return;
+        Myloc = getMaidenheadLocator(coords.lat, coords.lon);
+        zoomLevel = 5;
+        geo = loc2latlon(Myloc);
+        mylat = geo.lat;
+        mylon = geo.lon;
+        updateInfo(mylat, mylon);
+        mymap.setView([mylat, mylon], zoomLevel);
+        drawGrid(mymap.getBounds(), mymap.getZoom());
+      })
+      .catch((error) => {
+        if (error.code === error.TIMEOUT) {
+          console.info("Geolocation timed out, staying on default view.");
+        } else if (error.code === error.PERMISSION_DENIED) {
+          console.info("Geolocation permission denied.");
+        } else {
+          console.error("Location error:", error);
+        }
+      });
+  }
 
   // Map events
   mymap.on('mousemove', function(e) {
