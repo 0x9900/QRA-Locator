@@ -380,6 +380,20 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
     });
   }
+  var crosshair = document.getElementById('crosshair');
+  if (crosshair) {
+    crosshair.addEventListener('click', function(e) {
+      var location = getCurrentLocation();
+      location.then((coords) => {
+        if (!coords) return;
+        Myloc = getMaidenheadLocator(coords.lat, coords.lon);
+        goToLocator(Myloc, true);
+      });
+      location.catch((error) => {
+        console.error("Location error", error);
+      });
+    });
+  }
 });
 
 // Helper function to format numbers with 5 decimal places, padded if necessary
@@ -401,6 +415,32 @@ function updateInfo(lat, lon) {
   document.getElementById('lat').innerHTML = latDisplay;
   document.getElementById('lon').innerHTML = lonDisplay;
   document.getElementById('myloc').innerHTML = shortLocator;
+}
+
+async function getCurrentLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      resolve(null);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        });
+      },
+      (error) => {
+        reject(error);
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000
+      }
+    );
+  });
 }
 
 // Maidenhead Locator Generator

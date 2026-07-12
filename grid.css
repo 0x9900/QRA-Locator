@@ -51,8 +51,17 @@ header .about::before {
 }
 
 header .about:hover::before {
-    content: "\f059";
-    mouse:
+  content: "\f059";
+  mouse:
+}
+
+.crosshair::before {
+  font-size: 24px;
+  font: var(--fa-font-solid);
+  content: "\f05b";
+  color: #06c;
+  padding-right: 10px;
+  padding-left: 5px;
 }
 
 .container {
