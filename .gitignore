@@ -13,3 +13,6 @@ __pycache__/
 
 # vim
 *.swp
+.cloudflare.toml
+purge_cache
+/venv/
