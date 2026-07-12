@@ -452,40 +452,40 @@ async function getCurrentLocation() {
 
 // Maidenhead Locator Generator
 function getMaidenheadLocator(lat, lon, precision = 3) {
-    let lngAdjusted = lon + 180;
-    let latAdjusted = lat + 90;
+  let lngAdjusted = lon + 180;
+  let latAdjusted = lat + 90;
 
-    // Handle edge case wrap-arounds
-    while (lngAdjusted < 0) { lngAdjusted += 360; }
-    while (lngAdjusted > 360) { lngAdjusted -= 360; }
+  // Handle edge case wrap-arounds
+  while (lngAdjusted < 0) { lngAdjusted += 360; }
+  while (lngAdjusted > 360) { lngAdjusted -= 360; }
 
-    // --- LEVEL 1: Fields (20° Longitude x 10° Latitude) ---
-    let fieldLngIdx = Math.floor(lngAdjusted / 20);
-    let fieldLatIdx = Math.floor(latAdjusted / 10);
-    let locator = FIELD_CHARS[fieldLngIdx] + FIELD_CHARS[fieldLatIdx];
+  // --- LEVEL 1: Fields (20° Longitude x 10° Latitude) ---
+  let fieldLngIdx = Math.floor(lngAdjusted / 20);
+  let fieldLatIdx = Math.floor(latAdjusted / 10);
+  let locator = FIELD_CHARS[fieldLngIdx] + FIELD_CHARS[fieldLatIdx];
 
-    if (precision > 1) {
-        // --- LEVEL 2: Squares (2° Longitude x 1° Latitude) ---
-        let remLng = lngAdjusted - (fieldLngIdx * 20);
-        let remLat = latAdjusted - (fieldLatIdx * 10);
+  if (precision > 1) {
+    // --- LEVEL 2: Squares (2° Longitude x 1° Latitude) ---
+    let remLng = lngAdjusted - (fieldLngIdx * 20);
+    let remLat = latAdjusted - (fieldLatIdx * 10);
 
-        let squareLngIdx = Math.floor(remLng / 2);
-        let squareLatIdx = Math.floor(remLat / 1);
-        locator += squareLngIdx + "" + squareLatIdx;
+    let squareLngIdx = Math.floor(remLng / 2);
+    let squareLatIdx = Math.floor(remLat / 1);
+    locator += squareLngIdx + "" + squareLatIdx;
 
-        if (precision > 2) {
-            // --- LEVEL 3: Subsquares (5' Longitude x 2.5' Latitude) ---
-            let remSubLng = remLng - (squareLngIdx * 2);
-            let remSubLat = remLat - (squareLatIdx * 1);
+    if (precision > 2) {
+      // --- LEVEL 3: Subsquares (5' Longitude x 2.5' Latitude) ---
+      let remSubLng = remLng - (squareLngIdx * 2);
+      let remSubLat = remLat - (squareLatIdx * 1);
 
-            let subLngIdx = Math.floor(remSubLng / (2 / 24));
-            let subLatIdx = Math.floor(remSubLat / (1 / 24));
+      let subLngIdx = Math.floor(remSubLng / (2 / 24));
+      let subLatIdx = Math.floor(remSubLat / (1 / 24));
 
-            locator += SUBSQUARE_CHARS[subLngIdx] + SUBSQUARE_CHARS[subLatIdx];
-        }
+      locator += SUBSQUARE_CHARS[subLngIdx] + SUBSQUARE_CHARS[subLatIdx];
     }
+  }
 
-    return locator;
+  return locator;
 }
 
 // ===================== Map init =====================
