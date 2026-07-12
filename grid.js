@@ -390,7 +390,14 @@ document.addEventListener('DOMContentLoaded', function() {
         goToLocator(Myloc, true);
       });
       location.catch((error) => {
-        console.error("Location error", error);
+        console.error("getCurrentLocation error:", error);
+        if (error.code === error.TIMEOUT) {
+          alert("Geolocation timed out, staying on default view.");
+        } else if (error.code === error.PERMISSION_DENIED) {
+          alert("Geolocation permission denied.");
+        } else {
+          alert("Location error:", error);
+        }
       });
     });
   }
