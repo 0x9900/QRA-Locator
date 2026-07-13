@@ -142,17 +142,6 @@ function showCopyright() {
     cr = document.createElement('div');
     cr.id = 'copyright';
     cr.className = 'copyright';
-    cr.style.cssText = [
-      'position: fixed',
-      'left: 50%',
-      'bottom: 50%',
-      'transform: translateX(-50%)',
-      'text-align: center',
-      'z-index: 10000',
-      'opacity: 0',
-      'transition: opacity 0.2s ease',
-      'font-size: .8em'
-    ].join(';');
     document.body.appendChild(cr);
   }
 
@@ -395,6 +384,8 @@ document.addEventListener('DOMContentLoaded', function() {
           alert("Geolocation timed out, staying on default view.");
         } else if (error.code === error.PERMISSION_DENIED) {
           alert("Geolocation permission denied.");
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          alert("Geolocation not available on this device.");
         } else {
           alert("Location error:", error);
         }
