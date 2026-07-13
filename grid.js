@@ -14,7 +14,7 @@ const LABEL_SIZES_BY_ZOOM = {
   7: 3,
   8: 5,
   9: 10,
-  10: 14,
+  10: 2,
   11: 3,
   12: 5,
   13: 8
@@ -118,12 +118,40 @@ function goToLocator(rawValue, shouldReload) {
     localStorage.setItem('Myloc', newloc + 'LL');
     localStorage.setItem('zoomLevel', 9);
   } else {
-    alert("Locator must be 4 or 6 characters: " + rawValue);
+    alert(`Wrong value: ${rawValue}. Valid format should be AA00 or AA00AA`);
     return;
   }
 
   if (shouldReload) {
-    location.reload();
+    updateMapToNewLocator(newloc);
+  }
+}
+
+function updateMapToNewLocator(locator) {
+  var storedLocator = localStorage.getItem('Myloc');
+  var zoomLevel = parseInt(localStorage.getItem('zoomLevel')) || 13;
+
+  var geo = loc2latlon(storedLocator);
+  if (!geo) return;
+
+  var mylat = geo.lat;
+  var mylon = geo.lon;
+
+  if (mymap) {
+    mymap.setView([mylat, mylon], zoomLevel);
+    updateInfo(mylat, mylon);
+
+    // Refresh the grid layers
+    if (gridLayer && labelLayer) {
+      gridLayer.clearLayers();
+      labelLayer.clearLayers();
+      drawGrid(mymap.getBounds(), mymap.getZoom());
+    }
+  }
+
+  var searchInput = document.getElementById('newloc');
+  if (searchInput) {
+    searchInput.value = locator;
   }
 }
 
@@ -177,22 +205,7 @@ function showToast(message, duration) {
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'grid-toast';
-    toast.style.cssText = [
-      'position: fixed',
-      'left: 50%',
-      'bottom: 30px',
-      'transform: translateX(-50%)',
-      'background: #114',
-      'color: #f80',
-      'padding: 10px 18px',
-      'border-radius: 6px',
-      'font-family: "Menlo", "Consolas", monospace',
-      'font-size: 14px',
-      'z-index: 10000',
-      'opacity: 0',
-      'transition: opacity 0.2s ease',
-      'pointer-events: none'
-    ].join(';');
+    toast.className = 'grid-toast';
     document.body.appendChild(toast);
   }
 
@@ -214,8 +227,8 @@ function showToast(message, duration) {
 // http://dk3ml.de/
 
 function refreshMap() {
-  gridLayer.clearLayers();
   labelLayer.clearLayers();
+  gridLayer.clearLayers();
   drawGrid(mymap.getBounds(), mymap.getZoom());
 }
 
@@ -318,7 +331,7 @@ function drawSubsquareGrid(bounds, zoom) {
   var subLatStep = latStep / 24;
 
   // Only draw labels if we're zoomed in deep enough to care
-  var showLabels = zoom >= 11;
+  var showLabels = zoom >= 10;
 
   forRange(b.left, b.right, lonStep, function (lon) {
     forRange(b.bottom, b.top, latStep, function (lat) {
@@ -345,7 +358,7 @@ function drawGrid(bounds, zoom) {
   console.log(`Zoom Level: ${zoom}`);
   if (zoom < 7) {
     drawFieldGrid(bounds, zoom);
-  } else if (zoom < 11) {
+  } else if (zoom < 10) {
     drawSquareGrid(bounds, zoom);
   } else {
     drawSubsquareGrid(bounds, zoom);
@@ -372,11 +385,12 @@ document.addEventListener('DOMContentLoaded', function() {
   var crosshair = document.getElementById('crosshair');
   if (crosshair) {
     crosshair.addEventListener('click', function(e) {
+      showToast('Getting the location from the GPS', 1250);
       var location = getCurrentLocation();
       location.then((coords) => {
         if (!coords) return;
-        Myloc = getMaidenheadLocator(coords.lat, coords.lon);
-        goToLocator(Myloc, true);
+        newloc = getMaidenheadLocator(coords.lat, coords.lon);
+        goToLocator(newloc, true);
       });
       location.catch((error) => {
         console.error("getCurrentLocation error:", error);
@@ -485,7 +499,7 @@ var gridLayer;
 var labelLayer;
 
 async function map_init() {
-  var allowedZoomLevels = [3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14];
+  var allowedZoomLevels = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
   var Myloc = localStorage.getItem('Myloc') || 'HN05LL';
   var zoomLevel = localStorage.getItem('zoomLevel') || 3;
   var geo = loc2latlon(Myloc);
@@ -516,14 +530,19 @@ async function map_init() {
   drawGrid(mymap.getBounds(), mymap.getZoom());
 
   // Map events
-  mymap.on('mousemove', function(e) {
+  mymap.on('mousemove', (e) => {
     var lat = e.latlng.lat;
     var lon = e.latlng.lng;
     updateInfo(lat, lon);
   });
 
-  mymap.on("moveend", function () {
+  mymap.on("moveend", () => {
     refreshMap();
+  });
+
+  mymap.on('movestart', () => {
+    gridLayer.clearLayers();
+    labelLayer.clearLayers();
   });
 
   mymap.on('zoomend', () => {
@@ -545,15 +564,37 @@ async function map_init() {
     }
   });
 
-  mymap.on('click', function (e) {
+  var clickTimer = null;
+  mymap.on('click', function(e) {
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+      clickTimer = null;
+    }
+    clickTimer = setTimeout(function() {
+      var lat = e.latlng.lat;
+      var lon = e.latlng.lng;
+      var str = formatCoordinate(lat) + ", " + formatCoordinate(lon);
+      navigator.clipboard.writeText(str);
+      showToast('GPS coordinates "' + str + '" copied to the clipboard');
+      clickTimer = null;
+    }, 250);
+  });
+
+  mymap.on('dblclick', function(e) {
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+      clickTimer = null;
+    }
     var lat = e.latlng.lat;
     var lon = e.latlng.lng;
     var fullLocator = getMaidenheadLocator(lat, lon);
-    var shortLocator = getShortLocator(fullLocator);
-    var str = formatCoordinate(lat) + ", " + formatCoordinate(lon);
-    navigator.clipboard.writeText(str);
-    showToast('GPS coordinates "' + str + '" copied to the clipboard');
+    var searchInput = document.getElementById('newloc');
+    if (searchInput) {
+      searchInput.value = fullLocator;
+    }
+    goToLocator(fullLocator, true);
   });
+
 }
 
 map_init();
