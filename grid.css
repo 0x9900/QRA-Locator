@@ -4,7 +4,10 @@
  *
  * Distributed under terms of the BSD 3-Clause license.
  */
+
 @import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=help,info,my_location');
+
 
 * {
   box-sizing: border-box;
@@ -32,7 +35,7 @@ header h1 {
 }
 
 header .about {
-  font-size: 24px;
+  font-size: 32px;
   position: absolute;
   right: 20px;
   top: 25px;
@@ -41,27 +44,28 @@ header .about {
 }
 
 header .about::before {
-  display: inline-block;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  font: var(--fa-font-solid);
-  content: "\f06a"; 
-  color: #f80;
+  font-family: 'Material Symbols Outlined';
+  content: "info";
+  font-weight: 400;
+  font-variation-settings: 'FILL' 0;
   cursor: pointer;
 }
 
 header .about:hover::before {
-  content: "\f059";
+  font-family: 'Material Symbols Outlined';
+  content: "help";
+  font-variation-settings: 'FILL' 1;
 }
 
 .crosshair::before {
-  font-size: 24px;
-  font: var(--fa-font-solid);
-  content: "\f05b";
+  font-family: 'Material Symbols Outlined';
+  content: "my_location";
+  font-weight: 400;
   color: #06c;
   padding-right: 10px;
   padding-left: 5px;
   cursor: pointer;
+  font-size: 24px;
 }
 
 .crosshair:hover::before {
@@ -246,8 +250,8 @@ header .about:hover::before {
     padding: 0;
   }
 
-  header .info {
-    font-size: 12px;
+  header .about {
+    font-size: 18px;
     right: 3px;
     top: 13px;
   }
