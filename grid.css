@@ -6,7 +6,7 @@
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=article_shortcut,cancel,help,info,my_location');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=article_shortcut,cancel,clear_day,help,info,my_location');
 
 * {
   box-sizing: border-box;
@@ -44,8 +44,7 @@ header h1 {
   gap: 20px; 
 }
 
-header .about,
-header .home {
+.menu-item {
   font-size: 32px;
   color: #f80;
   position: relative;
@@ -54,8 +53,7 @@ header .home {
   cursor: pointer;
 }
 
-header .about::before,
-header .home::before {
+.menu-item::before {
   font-family: 'Material Symbols Outlined';
   font-weight: 400;
   position: absolute;
@@ -63,24 +61,24 @@ header .home::before {
   left: 50%;
   transform: translate(-50%, -50%);
   transition: all 0.2s ease;
+  font-variation-settings: 'FILL' 1;
 }
 
-header .home::before {
+.menu-item:hover::before {
+  font-variation-settings: 'FILL' 0;
+}
+
+
+.menu-item.home::before {
   content: "article_shortcut";
-  font-variation-settings: 'FILL' 1;
 }
 
-header .home:hover::before {
-  font-variation-settings: 'FILL' 0;
+.menu-item.solar::before {
+  content: "clear_day";
 }
 
-header .about::before {
+.menu-item.about::before {
   content: "info";
-  font-variation-settings: 'FILL' 1;
-}
-
-header .about:hover::before {
-  font-variation-settings: 'FILL' 0;
 }
 
 
