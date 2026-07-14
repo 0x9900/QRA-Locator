@@ -426,7 +426,7 @@ async function getCurrentLocation() {
         reject(error);
       },
       {
-        enableHighAccuracy: false,
+        enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 300000
       }
