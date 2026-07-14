@@ -166,33 +166,12 @@ function locate() {
 
 function showCopyright() {
   var cr = document.getElementById('copyright');
-  if (!cr) {
-    cr = document.createElement('div');
-    cr.id = 'copyright';
-    cr.className = 'copyright';
-    document.body.appendChild(cr);
-  }
-
-  cr.innerHTML = `
-    <p>A Maidenhead locator is a standardized way to represent a geographic location
-    using six characters: two letters, two numbers and two letters,
-    (e.g., "JN18PN"). It\'s used in amateur radio to quickly and accurately identify
-    locations for global communication</p>
-    <hr>
-    <p>QRA locator &copy; 2026 Fred <a href="https://qrz.com/db/W6BSD/" target="_blank">W6BSD</a>
-    inspired by a previous work from <a href="https://cluster.f5len.org/index.php"
-    target="_blank">F4LEN</a></p>
-    <p>Map data &copy; <a href="https://www.openstreetmap.org/copyright"
-    target="_blank">OpenStreetMap contributors</a><br>
-    Imagery &copy; <a href="https://www.mapbox.com/" target="_blank">Mapbox</a></p>
-    `
 
   requestAnimationFrame(function () {
     cr.style.opacity = '1';
     document.addEventListener('click', function() {
       cr.style.opacity = '0';
-      setTimeout(() => cr.remove(), 200);
-    }, { once: true }); // Removes itself after first click
+    }, { once: true });
   });
 }
 
