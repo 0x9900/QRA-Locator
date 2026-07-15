@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var crosshair = document.getElementById('crosshair');
   if (crosshair) {
     crosshair.addEventListener('click', function(e) {
-      toast.persistent('Requestiong GPS position night take a while.');
+      toast.persistent('Requesting GPS position. This night take a while.');
       getCurrentLocation()
         .then((coords) => {
           if (!coords) return;
