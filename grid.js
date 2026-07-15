@@ -175,31 +175,47 @@ function showCopyright() {
   });
 }
 
-// Self-mutating: reuses one toast element and just resets its timer on
-// repeated calls, so rapid clicks don't stack multiple messages.
-function showToast(message, duration) {
-  duration = duration || 5000;
+class Toast {
+  constructor() {
+    this.toast = document.getElementById("grid-toast");
 
-  var toast = document.getElementById('grid-toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'grid-toast';
-    toast.className = 'grid-toast';
-    document.body.appendChild(toast);
+    if (!this.toast) {
+      this.toast = document.createElement("div");
+      this.toast.id = "grid-toast";
+      this.toast.className = "grid-toast";
+      document.body.appendChild(this.toast);
+    }
+
+    this.hideTimer = null;
   }
 
-  toast.textContent = message;
+  show(message, duration = 5000) {
+    this.toast.textContent = message;
 
-  // Restart the fade-in even if a toast is already showing.
-  clearTimeout(toast._hideTimer);
-  toast.style.opacity = '0';
-  requestAnimationFrame(function () {
-    toast.style.opacity = '1';
-  });
+    clearTimeout(this.hideTimer);
 
-  toast._hideTimer = setTimeout(function () {
-    toast.style.opacity = '0';
-  }, duration);
+    // Restart fade-in
+    this.toast.style.opacity = "0";
+    requestAnimationFrame(() => {
+      this.toast.style.opacity = "1";
+    });
+
+    if (duration !== null) {
+      this.hideTimer = setTimeout(() => {
+        this.clear();
+      }, duration);
+    }
+  }
+
+  persistent(message) {
+    this.show(message, null);
+  }
+
+  clear() {
+    clearTimeout(this.hideTimer);
+    this.hideTimer = null;
+    this.toast.style.opacity = "0";
+  }
 }
 
 // ================= Draw Grid square. Adapted from Martin DK3ML =================
@@ -364,25 +380,28 @@ document.addEventListener('DOMContentLoaded', function() {
   var crosshair = document.getElementById('crosshair');
   if (crosshair) {
     crosshair.addEventListener('click', function(e) {
-      showToast('Getting the location from the GPS', 1250);
-      var location = getCurrentLocation();
-      location.then((coords) => {
-        if (!coords) return;
-        newloc = getMaidenheadLocator(coords.lat, coords.lon);
-        goToLocator(newloc, true);
-      });
-      location.catch((error) => {
-        console.error("getCurrentLocation error:", error);
-        if (error.code === error.TIMEOUT) {
-          alert("Geolocation timed out, staying on default view.");
-        } else if (error.code === error.PERMISSION_DENIED) {
-          alert("Geolocation permission denied.");
-        } else if (error.code === error.POSITION_UNAVAILABLE) {
-          alert("Geolocation not available on this device.");
-        } else {
-          alert("Location error:", error);
-        }
-      });
+      toast.persistent('Requestiong GPS position night take a while.');
+      getCurrentLocation()
+        .then((coords) => {
+          if (!coords) return;
+          newloc = getMaidenheadLocator(coords.lat, coords.lon);
+          goToLocator(newloc, true);
+        })
+        .catch((error) => {
+          console.error("getCurrentLocation error:", error);
+          if (error.code === error.TIMEOUT) {
+            alert("Geolocation timed out.");
+          } else if (error.code === error.PERMISSION_DENIED) {
+            alert("Geolocation permission denied.");
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            alert("Geolocation not available on this device.");
+          } else {
+            alert("Location error:", error);
+          }
+        })
+        .finally(() => {
+          toast.clear();
+        });
     });
   }
 });
@@ -408,29 +427,42 @@ function updateInfo(lat, lon) {
   document.getElementById('myloc').innerHTML = shortLocator;
 }
 
-async function getCurrentLocation() {
+
+async function getCurrentLocation(requiredAccuracy = 100) {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       resolve(null);
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
+    const watchId = navigator.geolocation.watchPosition(
       (position) => {
-        resolve({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude
-        });
+        console.log(`Accuracy: ${position.coords.accuracy} m`);
+
+        if (position.coords.accuracy <= requiredAccuracy) {
+          navigator.geolocation.clearWatch(watchId);
+          resolve({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          });
+        }
       },
       (error) => {
+        navigator.geolocation.clearWatch(watchId);
         reject(error);
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000
+        maximumAge: 0,
+        timeout: 30000
       }
     );
+
+    // Optional overall timeout
+    setTimeout(() => {
+      navigator.geolocation.clearWatch(watchId);
+      reject(new Error("Timed out waiting for an accurate location"));
+    }, 30000);
   });
 }
 
@@ -473,6 +505,8 @@ function getMaidenheadLocator(lat, lon, precision = 3) {
 }
 
 // ===================== Map init =====================
+const toast = new Toast();
+
 var mymap;
 var gridLayer;
 var labelLayer;
@@ -554,7 +588,7 @@ async function map_init() {
       var lon = e.latlng.lng;
       var str = formatCoordinate(lat) + ", " + formatCoordinate(lon);
       navigator.clipboard.writeText(str);
-      showToast('GPS coordinates "' + str + '" copied to the clipboard');
+      toast.show('GPS coordinates "' + str + '" copied to the clipboard');
       clickTimer = null;
     }, 250);
   });
