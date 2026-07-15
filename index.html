@@ -34,6 +34,7 @@
             target="solar"></a>
         <a class="menu-item home" href="https://0x9900.com/qra-locator-tool-now-available/" title="My Blog on ham radio"
             target="0x9900"></a>
+        <a id="help" class="menu-item help" title="Help"></a>
         <a id="about" class="menu-item about" title="About QRA Locator"></a>
       </div>
     </header>
@@ -75,11 +76,21 @@
       </div>
       <div id="mapid"></div>
     </div>
-    <div id="copyright" class="copyright">
-        <p>A Maidenhead locator is a standardized way to represent a geographic location using six characters: two letters, two numbers and two letters, (e.g., "JN18PN"). It\'s used in amateur radio to quickly and accurately identify locations for global communication</p>
-        <hr>
-        <p><a href="https://0x9900.com/qra-locator-tool-now-available/" target="_blank"> QRA locator</a> &copy; 2026 Fred <a href="https://qrz.com/db/W6BSD/" target="_blank">W6BSD</a> inspired by a previous work from <a href="https://cluster.f5len.org/index.php" target="_blank">F4LEN</a></p>
-        <p>Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a><br> Imagery &copy; <a href="https://www.mapbox.com/" target="_blank">Mapbox</a></p>
+    <div id="help_popup" class="modal">
+      <h2>Help</h2>
+      <ul>
+        <li>Enter your Maidehead locator (4 or 6 characters) in the locator form</li>
+        <li>Click on the crosshair to use your device GPS to find your locator</li>
+        <li>Single click on the map, will copy the GPS coordinates of your mouse into the cut-buffer</li>
+        <li>Double click, will move the map to the gridsquare you have selected</li>
+      </ul>
+    </div>
+    <div id="about_popup" class="modal">
+      <h2>About</h2>
+      <p>A Maidenhead locator is a standardized way to represent a geographic location using six characters: two letters, two numbers and two letters, (e.g., "JN18PN"). The Maidenhead locator is used in amateur radio to quickly and accurately identify locations for global communication.</p>
+      <hr>
+      <p><a href="https://0x9900.com/qra-locator-tool-now-available/" target="_blank"> QRA locator</a> &copy; 2026 Fred <a href="https://qrz.com/db/W6BSD/" target="_blank">W6BSD</a> inspired by a previous work from <a href="https://cluster.f5len.org/index.php" target="_blank">F4LEN</a>.</p>
+      <p>Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a><br> Imagery &copy; <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>.</p>
     </div>
     <script src="grid.js"></script>
   </body>

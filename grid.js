@@ -164,8 +164,8 @@ function locate() {
   }
 }
 
-function showCopyright() {
-  var cr = document.getElementById('copyright');
+function showHelp() {
+  var cr = document.getElementById('help_popup');
 
   requestAnimationFrame(function () {
     cr.style.opacity = '1';
@@ -174,6 +174,19 @@ function showCopyright() {
     }, { once: true });
   });
 }
+
+function showAbout() {
+  var cr = document.getElementById('about_popup');
+
+  requestAnimationFrame(function () {
+    cr.style.opacity = '1';
+    document.addEventListener('click', function() {
+      cr.style.opacity = '0';
+    }, { once: true });
+  });
+}
+
+
 
 class Toast {
   constructor() {
@@ -370,10 +383,17 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+  var infoModal = document.getElementById('help');
+  if (infoModal) {
+    infoModal.addEventListener('click', function(e) {
+      showHelp(e);
+      e.preventDefault();
+    });
+  }
   var infoModal = document.getElementById('about');
   if (infoModal) {
     infoModal.addEventListener('click', function(e) {
-      showCopyright(e);
+      showAbout(e);
       e.preventDefault();
     });
   }

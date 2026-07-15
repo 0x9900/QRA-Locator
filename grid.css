@@ -6,7 +6,7 @@
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=article_shortcut,cancel,clear_day,info,my_location');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=article_shortcut,cancel,clear_day,help,info,my_location');
 
 * {
   box-sizing: border-box;
@@ -61,11 +61,11 @@ header h1 {
   left: 50%;
   transform: translate(-50%, -50%);
   transition: all 0.2s ease;
-  font-variation-settings: 'FILL' 1;
+  font-variation-settings: 'FILL' 0;
 }
 
 .menu-item:hover::before {
-  font-variation-settings: 'FILL' 0;
+  font-variation-settings: 'FILL' 1;
 }
 
 
@@ -81,6 +81,9 @@ header h1 {
   content: "info";
 }
 
+.menu-item.help::before {
+  content: "help";
+}
 
 .crosshair::before {
   font-family: 'Material Symbols Outlined';
@@ -226,12 +229,11 @@ header h1 {
   border: 5px solid #f80;
 }
 
-.copyright {
+.modal {
   position: absolute;
   left: 50%;
   bottom: 40%;
   transform: translateX(-50%);
-  text-align: center;
   z-index: 10000;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -245,7 +247,7 @@ header h1 {
 
 }
 
-.copyright::after {
+.modal::after {
   position: absolute;
   top: 20px;
   right: 5px;
@@ -258,19 +260,39 @@ header h1 {
   cursor: pointer;
 }
 
-.copyright hr {
+.modal hr {
   border: 1px solid #666; 
   border-bottom: none;
+  width: 50%;
 }
 
-.copyright a {
+.modal a {
     color: #3a3;
     text-decoration: none;
 }
 
-.copyright a:hover {
+.modal a:hover {
     color: #3e3;
     text-decoration: underline;
+}
+
+.modal p {
+  text-align: center;
+}
+
+.modal h2 {
+  color: #f80;
+  border-bottom: 1px solid #f80;
+}
+
+.modal ul {
+  margin: 1em;
+  padding: 0em;
+  list-style-type: square;
+}
+
+.modal li {
+    margin-bottom: 1em;
 }
 
 /* Responsive design - single column on small screens */
@@ -329,7 +351,7 @@ header h1 {
     gap: 3px 5px;
   }
 
-  .copyright {
+  .modal {
     bottom: 30%;
     padding: 10px;
     width: 90%;
