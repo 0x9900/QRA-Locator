@@ -603,7 +603,7 @@ var gridLayer;
 var labelLayer;
 
 async function map_init() {
-  var allowedZoomLevels = [3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14];
+  var allowedZoomLevels = [3, 4, 5, 6, 7, 8, 11, 12, 13, 14];
   var Myloc = localStorage.getItem("Myloc") || "HN05LL";
   var zoomLevel = localStorage.getItem("zoomLevel") || 3;
   var geo = loc2latlon(Myloc);
@@ -653,7 +653,7 @@ async function map_init() {
     labelLayer.clearLayers();
   });
 
-  mymap.on("zoomstart", () => {
+  mymap.on("zoomend", () => {
     const currentZoom = Math.round(mymap.getZoom());
     if (allowedZoomLevels.includes(currentZoom)) {
       previousZoom = currentZoom;
@@ -666,12 +666,9 @@ async function map_init() {
       )
       .sort((a, b) => (direction === 1 ? a - b : b - a))[0];
 
-    if (nextAllowed !== undefined) {
-      mymap.setZoom(nextAllowed);
-      previousZoom = nextAllowed;
-    } else {
-      mymap.setZoom(previousZoom);
-    }
+    const target = nextAllowed !== undefined ? nextAllowed : previousZoom;
+    previousZoom = target;
+    mymap.setZoom(target, { animate: false });
   });
 
   var clickTimer = null;
