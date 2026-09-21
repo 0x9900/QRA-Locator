@@ -1,39 +1,79 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Maidenhead Grid Locator Map | Find Your QTH Grid Square</title>
-    <meta name="description" content="Find your Maidenhead Locator by exploring the interactive map. Get precise, up to 6-character grid square coordinates." />
-    <meta name="keywords" content="maidenhead locator, qth locator, grid square map, amateur radio, ham radio, wwl grid, qra locator, latitude longitude finder" />
+    <meta
+      name="description"
+      content="Find your Maidenhead Locator by exploring the interactive map. Get precise, up to 6-character grid square coordinates."
+    />
+    <meta
+      name="keywords"
+      content="maidenhead locator, qth locator, grid square map, amateur radio, ham radio, wwl grid, qra locator, latitude longitude finder"
+    />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="canonical" href="https://bsdworld.org/QRA-Locator" />
 
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"
+      integrity="sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
 
     <!-- Leaflet JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"
+      integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
 
     <!-- Esri Leaflet JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/esri-leaflet/3.1.0/esri-leaflet.js" integrity="sha512-YRqndE31+urvIq5hWQw0YPM7rTGU83GLqra65HbpQudbzGF5g7Pte1WsYF2K/+2ppmY8hKainD+jKmj3TKn8IA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/esri-leaflet/3.1.0/esri-leaflet.js"
+      integrity="sha512-YRqndE31+urvIq5hWQw0YPM7rTGU83GLqra65HbpQudbzGF5g7Pte1WsYF2K/+2ppmY8hKainD+jKmj3TKn8IA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
 
     <!-- Esri Leaflet Geocoder CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/esri-leaflet-geocoder/3.1.7/esri-leaflet-geocoder.css" integrity="sha512-Xl6u18E/1V1dvC2D+Desg5U+j+ixg52ZCJtk9jXOZaMb6cVjXp2jYz1N/1cxzkOjmdMc5zNq1DpHo8yh433IkQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/esri-leaflet-geocoder/3.1.7/esri-leaflet-geocoder.css"
+      integrity="sha512-Xl6u18E/1V1dvC2D+Desg5U+j+ixg52ZCJtk9jXOZaMb6cVjXp2jYz1N/1cxzkOjmdMc5zNq1DpHo8yh433IkQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
 
     <!-- Esri Leaflet Geocoder JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/esri-leaflet-geocoder/3.1.7/esri-leaflet-geocoder.js" integrity="sha512-Wzn40LiRa1hOpYwP6D7SkAC4F3mkP8HkJYFTrn4DnDJ2JGsajuTzXy1/SHLHa7DnNsopNKyv0yrLRPlvICjNrA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/esri-leaflet-geocoder/3.1.7/esri-leaflet-geocoder.js"
+      integrity="sha512-Wzn40LiRa1hOpYwP6D7SkAC4F3mkP8HkJYFTrn4DnDJ2JGsajuTzXy1/SHLHa7DnNsopNKyv0yrLRPlvICjNrA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
 
-    <link rel="stylesheet" href="grid.css">
-
+    <link rel="stylesheet" href="grid.css" />
   </head>
   <body>
     <header>
       <h1>QRA Locator</h1>
       <div class="header-menu">
-        <a class="menu-item solar" href="https://bsdworld.org/solar/" title="Solar Activity"
-            target="solar"></a>
-        <a class="menu-item home" href="https://0x9900.com/qra-locator-tool-now-available/" title="My Blog on ham radio"
-            target="0x9900"></a>
+        <a
+          class="menu-item solar"
+          href="https://bsdworld.org/solar/"
+          title="Solar Activity"
+          target="solar"
+        ></a>
+        <a
+          class="menu-item home"
+          href="https://0x9900.com/qra-locator-tool-now-available/"
+          title="My Blog on ham radio"
+          target="0x9900"
+        ></a>
         <a id="help" class="menu-item help" title="Help"></a>
         <a id="about" class="menu-item about" title="About QRA Locator"></a>
       </div>
@@ -45,12 +85,28 @@
           <!-- Left column: Locator and coordinates -->
           <div class="info-right">
             <div id="myform">
-              <form name="myform" action="" method="post" onsubmit="return false;">
+              <form
+                name="myform"
+                action=""
+                method="post"
+                onsubmit="return false;"
+              >
                 <div class="search-container">
                   <div class="search-input-group">
                     <span><b>Locator:</b></span>
-                    <div id="crosshair" class="crosshair" title="Show my current location"></div>
-                    <input type="text" id="newloc" size="6" maxlength="6" value="" title="Enter a 6 character location" />
+                    <div
+                      id="crosshair"
+                      class="crosshair"
+                      title="Show my current location"
+                    ></div>
+                    <input
+                      type="text"
+                      id="newloc"
+                      size="6"
+                      maxlength="6"
+                      value=""
+                      title="Enter a 6 character location"
+                    />
                     <input type="button" value="Search" onclick="locate()" />
                   </div>
                 </div>
@@ -79,18 +135,50 @@
     <div id="help_popup" class="modal">
       <h2>Help</h2>
       <ul>
-        <li>Enter your Maidehead locator (4 or 6 characters) in the locator form</li>
-        <li>Click on the crosshair to use your device GPS to find your locator</li>
-        <li>Single click on the map, will copy the GPS coordinates of your mouse into the cut-buffer</li>
-        <li>Double click, will move the map to the gridsquare you have selected</li>
+        <li>
+          Enter your Maidehead locator (4 or 6 characters) in the locator form
+        </li>
+        <li>
+          Click on the crosshair to use your device GPS to find your locator
+        </li>
+        <li>
+          Single click on the map, will copy the GPS coordinates of your mouse
+          into the cut-buffer
+        </li>
+        <li>
+          Double click, will move the map to the gridsquare you have selected
+        </li>
       </ul>
     </div>
     <div id="about_popup" class="modal">
       <h2>About</h2>
-      <p>A Maidenhead locator is a standardized way to represent a geographic location using six characters: two letters, two numbers and two letters, (e.g., "JN18PN"). The Maidenhead locator is used in amateur radio to quickly and accurately identify locations for global communication.</p>
-      <hr>
-      <p><a href="https://0x9900.com/qra-locator-tool-now-available/" target="_blank"> QRA locator</a> &copy; 2026 Fred <a href="https://qrz.com/db/W6BSD/" target="_blank">W6BSD</a> inspired by a previous work from <a href="https://cluster.f5len.org/index.php" target="_blank">F4LEN</a>.</p>
-      <p>Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a><br> Imagery &copy; <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>.</p>
+      <p>
+        A Maidenhead locator is a standardized way to represent a geographic
+        location using six characters: two letters, two numbers and two letters,
+        (e.g., "JN18PN"). The Maidenhead locator is used in amateur radio to
+        quickly and accurately identify locations for global communication.
+      </p>
+      <hr />
+      <p>
+        <a
+          href="https://0x9900.com/qra-locator-tool-now-available/"
+          target="_blank"
+        >
+          QRA locator</a
+        >
+        &copy; 2026 Fred
+        <a href="https://qrz.com/db/W6BSD/" target="_blank">W6BSD</a> inspired
+        by a previous work from
+        <a href="https://cluster.f5len.org/index.php" target="_blank">F4LEN</a>.
+      </p>
+      <p>
+        Map data &copy;
+        <a href="https://www.openstreetmap.org/copyright" target="_blank"
+          >OpenStreetMap contributors</a
+        ><br />
+        Imagery &copy;
+        <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>.
+      </p>
     </div>
     <script src="grid.js"></script>
   </body>
